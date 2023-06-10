@@ -1,6 +1,8 @@
 import { useState } from "react"
+import { type NextPage } from "next"
 import Head from "next/head"
 import Link from "next/link"
+import { trpc } from "../../utils/api.ts"
 
 interface FormData {
   title: string
@@ -8,10 +10,33 @@ interface FormData {
 }
 
 const Newnote: NextPage = () => {
+  const utils = trpc.useContext()
+  const addNewNote = trpc.notes.newnotes.newNote.useMutation(
+    onMutate: () => {
+      utils.notes.allNotes.cancel()
+      
+      const optimisticUpdate = utils.notes.allNotes.getData()
+    }
+  )
+  
   const [data, setData] = useState<FormData>({
     title: "",
     description: ""
   })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    addNewNote.mutate({
+      title: data.title,
+      description: data.description
+    })
+
+    setData({
+      title: "",
+      description: ""
+    })
+  }
 
   const handleTitleChange = (e) => {
     setData({
@@ -44,9 +69,7 @@ const Newnote: NextPage = () => {
           Add New Notes
         </h1>
         <form 
-          onSubmit={(event) => {
-
-          }}
+          onSubmit={handleSubmit}
           className="flex flex-col gap-6"
         >
           <input 
