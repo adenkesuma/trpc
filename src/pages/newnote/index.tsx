@@ -36,8 +36,6 @@ const Newnote: NextPage = () => {
       ...data,
       title: e.target.value
     })
-
-    console.log(data.title)
   }
 
   const handleDescriptionChange = (e) => {
@@ -45,8 +43,6 @@ const Newnote: NextPage = () => {
       ...data,
       description: e.target.value
     })
-
-    console.log(data.description)
   }
 
   const handleSubmit = (e) => {
@@ -80,13 +76,13 @@ const Newnote: NextPage = () => {
           Add New Notes
         </h1>
         <form 
-          onSubmit={(e) => handleSubmit(e)}
+          onSubmit={handleSubmit}
           className="flex flex-col gap-6"
         >
           <input 
             type="text" 
             value={data.title}
-            onChange={(e) => handleTitleChange(e)}
+            onChange={handleTitleChange}
             placeholder="Your title"
             required
             className="bg-slate-300 text-slate-900 p-4 rounded-lg border-none outline-none"
@@ -94,7 +90,7 @@ const Newnote: NextPage = () => {
           <textarea 
             type="textarea" 
             value={data.description}
-            onChange={(e) => handleDescriptionChange(e)}
+            onChange={handleDescriptionChange}
             placeholder="Your description" 
             required
             className="bg-slate-300 text-slate-900 p-4 rounded-lg border-none outline-none"
