@@ -2,7 +2,7 @@ import { useState } from "react"
 import { type NextPage } from "next"
 import Head from "next/head"
 import Link from "next/link"
-import { trpc } from "../../utils/api.ts"
+import { api } from "../../utils/api.ts"
 
 interface FormData {
   title: string
@@ -10,19 +10,44 @@ interface FormData {
 }
 
 const Newnote: NextPage = () => {
-  const utils = trpc.useContext()
-  const addNewNote = trpc.notes.newnotes.newNote.useMutation(
+  const utils = api.useContext()
+  const addNewNote = api.mynotes.newNote.useMutation({
     onMutate: () => {
-      utils.notes.allNotes.cancel()
+      utils.mynotes.allNotes.cancel()
       
-      const optimisticUpdate = utils.notes.allNotes.getData()
+      const optimisticUpdate = utils.mynotes.allNotes.getData()
+
+      if (optimisticUpdate) {
+        utils.mynotes.allNotes.setData(optimisticUpdate)
+      }
+    },
+    onSettled: () => {
+      utils.mynotes.allNotes.invalidate()
     }
-  )
+  })
   
   const [data, setData] = useState<FormData>({
     title: "",
     description: ""
   })
+
+  const handleTitleChange = (e) => {
+    setData({
+      ...data,
+      title: e.target.value
+    })
+
+    console.log(data.title)
+  }
+
+  const handleDescriptionChange = (e) => {
+    setData({
+      ...data,
+      description: e.target.value
+    })
+
+    console.log(data.description)
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -35,20 +60,6 @@ const Newnote: NextPage = () => {
     setData({
       title: "",
       description: ""
-    })
-  }
-
-  const handleTitleChange = (e) => {
-    setData({
-      ...data,
-      title: e.target.value
-    })
-  }
-
-  const handleDescriptionChange = (e) => {
-    setData({
-      ...data,
-      description: e.target.value
     })
   }
 
@@ -69,13 +80,13 @@ const Newnote: NextPage = () => {
           Add New Notes
         </h1>
         <form 
-          onSubmit={handleSubmit}
+          onSubmit={(e) => handleSubmit(e)}
           className="flex flex-col gap-6"
         >
           <input 
             type="text" 
             value={data.title}
-            onChange={handleTitleChange}
+            onChange={(e) => handleTitleChange(e)}
             placeholder="Your title"
             required
             className="bg-slate-300 text-slate-900 p-4 rounded-lg border-none outline-none"
@@ -83,13 +94,13 @@ const Newnote: NextPage = () => {
           <textarea 
             type="textarea" 
             value={data.description}
-            onChange={handleDescriptionChange}
+            onChange={(e) => handleDescriptionChange(e)}
             placeholder="Your description" 
             required
             className="bg-slate-300 text-slate-900 p-4 rounded-lg border-none outline-none"
           >
           </textarea>
-          <button className="text-white rounded-lg p-4 font-semibold bg-green-700">
+          <button type="submit" className="text-white rounded-lg p-4 font-semibold bg-green-700">
             Add a note
           </button>
         </form>

@@ -9,7 +9,7 @@ export const notesRouter = router({
         description: z.string()
       }) 
     )
-    .mutation(async ({ctx, input} => {
+    .mutation(async ({ctx, input}) => {
       try {
         return await ctx.prisma.notes.create({
           data: {
@@ -20,16 +20,20 @@ export const notesRouter = router({
       } catch(err) {
         console.log(`Notes cannot be created ${err}`)
       }
-    })),
+    }),
   allNotes: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.notes.findMany({
-      select: {
-        title: true,
-        id: true
-      },
-      orderBy: {
-        createdAt: "desc"
-      }
-    })
+    try {
+      return await ctx.prisma?.notes?.findMany({
+        select: {
+          title: true,
+          id: true
+        },
+        orderBy: {
+          createdAt: "desc"
+        }
+      })
+    } catch(err) {
+      console.log(`cannot fetch your notes ${err}`)
+    }
   })
-}
+})
